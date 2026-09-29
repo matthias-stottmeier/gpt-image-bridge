@@ -1,6 +1,6 @@
 # gpt-image-bridge
 
-Generate images with OpenAI's `gpt-image-2` from a CLI coding agent by bridging through the [`codex` CLI](https://github.com/openai/codex). Uses your ChatGPT subscription — **no API key required, no per-image billing.**
+Generate images with OpenAI's **GPT Image 2.5** from a CLI coding agent by bridging through the [`codex` CLI](https://github.com/openai/codex). Uses your ChatGPT subscription — **no API key required, no per-image billing.**
 
 The bridge is a standalone bash script — [Claude Code](https://docs.claude.com/en/docs/claude-code), Cursor, Gemini CLI, aider, or any other agent that can run a shell command can call it. Claude Code just gets the nicest ergonomics, because the included installer registers it as a skill so Claude reaches for it unprompted.
 
@@ -8,10 +8,12 @@ Works with any design skill (like the [`image-taste-frontend`](https://github.co
 
 ## What it is
 
-Coding agents don't ship with an image generation tool. This adds a thin bash wrapper that shells out to `codex exec`, which calls `gpt-image-2` using your existing ChatGPT authentication and copies the PNG where you asked. Your agent then reads the PNG back into context.
+This adds image generation to coding agents through a thin bash wrapper that shells out to `codex exec`, calls its `image_generation` tool using your existing ChatGPT authentication, and copies the PNG where you asked. Your agent then reads the PNG back into context.
+
+OpenAI's [Images 2.5 announcement](https://openai.com/index/introducing-chatgpt-images-2-5/) includes availability in Codex. The bridge uses the image model provided by Codex; it does not select or verify a particular backend model. The executable is still named `gpt-image-2` for compatibility with existing installs and scripts. That filename does not pin generation to GPT Image 2.
 
 ```
-your agent ──shell──▶ gpt-image-2 wrapper ──codex exec──▶ gpt-image-2 (OpenAI)
+your agent ──shell──▶ gpt-image-2 wrapper ──codex exec──▶ image_generation
                               │                                  │
              read PNG ◀── copies to your ◀──── out.png in a ◀────┘
                           output path          private temp dir
@@ -72,7 +74,7 @@ Read the PNG back afterward to check the result.
 Drop the block below into your Claude Code session (or any shell-capable AI agent) and it will install the skill for you, verify prereqs, and offer a smoke test.
 
 ```
-Please install the gpt-image-bridge skill from https://github.com/oakplank/gpt-image-bridge so I can generate images with gpt-image-2 through my ChatGPT subscription.
+Please install the gpt-image-bridge skill from https://github.com/oakplank/gpt-image-bridge so I can generate images with GPT Image 2.5 through Codex and my ChatGPT subscription.
 
 1. Check that the `codex` CLI is installed and logged in:
      codex login status
@@ -114,13 +116,13 @@ On success the wrapper prints the absolute output path. On failure it prints the
 | Auth | Your ChatGPT subscription | Requires API key |
 | Cost | Uses ChatGPT message quota | Per-image billing |
 | Speed | Slower (codex reasons before calling the image tool) | Faster |
-| Prompt quality | codex refines your prompt with gpt-5.4 before generating | Passed verbatim |
+| Prompt quality | Your configured Codex model refines the prompt before generating | Passed verbatim |
 
 If you already pay for ChatGPT, the codex route is free at the margin. If you'd rather pay per image for speed, call the [Images API](https://platform.openai.com/docs/api-reference/images) directly — this bridge is for the subscription route.
 
 ## Pair with a design skill
 
-This bridge is just the tool — it gives your agent the ability to call `gpt-image-2`, not the taste to know what a good image looks like. For art-directed frontend work, stack it under a design-taste skill:
+This bridge is just the tool — it gives your agent access to Codex's image generation, not the taste to know what a good image looks like. For art-directed frontend work, stack it under a design-taste skill:
 
 - [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) by [@lexnlin](https://x.com/lexnlin) — high-agency frontend, anti-slop. The `image-taste-frontend` skill inside it is the one this bridge was originally built to feed.
 - Any other skill that follows an "image first, then code" workflow
