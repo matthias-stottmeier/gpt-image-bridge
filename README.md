@@ -62,7 +62,7 @@ ln -s "$PWD/gpt-image-bridge/skills/gpt-image-bridge/bin/gpt-image-2" /usr/local
 Then tell your agent it exists. Most agents take a rules or instructions file — `.cursorrules`, `AGENTS.md`, `GEMINI.md`, a system prompt — and a couple of lines is enough:
 
 ```
-To generate an image, run: gpt-image-2 "<detailed prompt>" <absolute-output-path.png> [--size WxH]
+To generate an image, run: gpt-image-2 "<detailed prompt>" <absolute-output-path.png> [--size WxH] [--ref <image>]...
 Prompts should be dense and art-directed. Calls take 4-6 minutes, so allow a long timeout.
 Read the PNG back afterward to check the result.
 ```
@@ -106,6 +106,11 @@ If you installed via `install.sh` and didn't symlink it onto your `PATH`, the wr
 Optional flags:
 
 - `--size WxH` — request a specific aspect ratio (e.g. `--size 1792x1024`). If omitted, the model picks its own dimensions.
+- `--ref <image>` — attach a reference image, like uploading one in ChatGPT. Repeat it for several references. Use it to edit an image ("change only the jacket to red, keep everything else") or to carry over a face, product, or style into a new scene.
+
+```bash
+gpt-image-2 "the same balloon, but green" /tmp/green.png --ref /tmp/test.png
+```
 
 On success the wrapper prints the absolute output path. On failure it prints the tail of the codex log to stderr.
 
