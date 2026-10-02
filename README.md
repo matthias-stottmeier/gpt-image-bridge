@@ -1,6 +1,6 @@
 # gpt-image-bridge
 
-> **Fork of [oakplank/gpt-image-bridge](https://github.com/oakplank/gpt-image-bridge)** that adds `--ref <image>` for reference images (edit an image, or reuse a face, product, or style in a new scene). Proposed upstream in [PR #5](https://github.com/oakplank/gpt-image-bridge/pull/5). The install commands below point to this fork.
+> **Fork of [oakplank/gpt-image-bridge](https://github.com/oakplank/gpt-image-bridge)** that adds `--ref <image>` for reference images (edit an image, or reuse a face, product, or style in a new scene). How to use it: [Reference images](#reference-images). Proposed upstream in [PR #5](https://github.com/oakplank/gpt-image-bridge/pull/5). The install commands below point to this fork.
 
 Generate images with OpenAI's **GPT Image 2.5** from a CLI coding agent by bridging through the [`codex` CLI](https://github.com/openai/codex). Uses your ChatGPT subscription — **no API key required, no per-image billing.**
 
@@ -108,13 +108,66 @@ If you installed via `install.sh` and didn't symlink it onto your `PATH`, the wr
 Optional flags:
 
 - `--size WxH` — request a specific aspect ratio (e.g. `--size 1792x1024`). If omitted, the model picks its own dimensions.
-- `--ref <image>` — attach a reference image, like uploading one in ChatGPT. Repeat it for several references. Use it to edit an image ("change only the jacket to red, keep everything else") or to carry over a face, product, or style into a new scene.
-
-```bash
-gpt-image-2 "the same balloon, but green" /tmp/green.png --ref /tmp/test.png
-```
+- `--ref <image>` — attach a reference image, like uploading one in ChatGPT. Repeat it for several references. See [Reference images](#reference-images) below.
 
 On success the wrapper prints the absolute output path. On failure it prints the tail of the codex log to stderr.
+
+## Reference images
+
+Attach an image with `--ref` and the model sees its actual pixels, the same as uploading an image in ChatGPT. Use it to:
+
+- **Edit an image:** change one thing and keep everything else.
+- **Keep a subject consistent:** put the same person, product, logo, or mascot into a new scene.
+- **Match a style:** give it a screenshot, mood board, or brand visual and copy the look.
+- **Refine a result:** pass a generated image back in and ask for changes instead of starting over.
+
+### Example
+
+| Reference (`--ref`) | Result |
+| --- | --- |
+| ![Red balloon on a blue sky](docs/ref-example-before.jpg) | ![The same image with the balloon recolored green](docs/ref-example-after.jpg) |
+
+```bash
+gpt-image-2 \
+  "Recreate this exact image, changing only the balloon color to green. Keep the framing, balloon position and size, the highlight, the ribbon curve, and every cloud exactly where they are." \
+  /tmp/green-balloon.png \
+  --ref /tmp/red-balloon.png
+```
+
+Only the color changed. The balloon, highlight, ribbon, and clouds stayed within about 1% of their original positions.
+
+### Asking your agent
+
+You don't need the flag syntax. Name the file in plain language and the agent passes it with `--ref`:
+
+- "Use ~/Desktop/me.jpg as a reference and put me on a beach at sunset."
+- "Edit ~/Downloads/logo.png: make the background dark navy, keep the logo exactly the same."
+- "Make a hero image of the bottle in ~/shots/bottle.png on a marble counter, in the style of ~/moodboard/style.jpg."
+
+### More command examples
+
+```bash
+# Two references: a subject and a style
+gpt-image-2 "the bottle from the first image, photographed in the style of the second image" \
+  /tmp/hero.png --ref ~/shots/bottle.png --ref ~/moodboard/style.jpg
+
+# An edit that keeps the reference's dimensions (here 1024x1536)
+gpt-image-2 "the same portrait, change only the jacket to red; keep the face, pose, and background identical" \
+  /tmp/red-jacket.png --ref ~/photos/portrait.png --size 1024x1536
+```
+
+### Tips
+
+- **For edits, say what must stay the same:** "change only X; keep Y and Z exactly as they are." Without that, the model treats the reference as loose inspiration.
+- **Pass `--size` when dimensions matter.** The output size can differ from the reference: a 1024×1024 reference came back 1254×1254.
+- **With several references, say what each one is for** ("the first image is the product, the second is the style"). They are attached in the order you pass them.
+- **Paths can be relative or absolute.** A missing file stops the wrapper with an error before any quota is used.
+- **iPhone photos:** codex may not read HEIC. Convert first, e.g. `sips -s format png photo.heic --out photo.png` on macOS.
+
+### Limits
+
+- The model regenerates the whole image, so expect small drift even in the parts you asked to keep. For exact mechanical edits (crop, resize, format conversion, exact hex colors), use an image tool such as ImageMagick.
+- A call with references uses ChatGPT quota, the same as a normal generation.
 
 ## Why go through codex instead of calling the API directly?
 
