@@ -1,5 +1,7 @@
 # gpt-image-bridge
 
+> **Fork of [oakplank/gpt-image-bridge](https://github.com/oakplank/gpt-image-bridge)** that adds `--ref <image>` for reference images (edit an image, or reuse a face, product, or style in a new scene). Proposed upstream in [PR #5](https://github.com/oakplank/gpt-image-bridge/pull/5). The install commands below point to this fork.
+
 Generate images with OpenAI's **GPT Image 2.5** from a CLI coding agent by bridging through the [`codex` CLI](https://github.com/openai/codex). Uses your ChatGPT subscription — **no API key required, no per-image billing.**
 
 The bridge is a standalone bash script — [Claude Code](https://docs.claude.com/en/docs/claude-code), Cursor, Gemini CLI, aider, or any other agent that can run a shell command can call it. Claude Code just gets the nicest ergonomics, because the included installer registers it as a skill so Claude reaches for it unprompted.
@@ -40,7 +42,7 @@ codex features list | grep image_generation    # should be: stable true
 ### Claude Code
 
 ```bash
-git clone https://github.com/oakplank/gpt-image-bridge.git
+git clone https://github.com/matthias-stottmeier/gpt-image-bridge.git
 cd gpt-image-bridge
 ./install.sh
 ```
@@ -52,7 +54,7 @@ The installer copies the skill into `~/.claude/skills/gpt-image-bridge/` and mak
 There's nothing to install — the wrapper is a self-contained bash script with no dependencies beyond `codex`. Clone the repo, make it executable, and put it somewhere on your `PATH`:
 
 ```bash
-git clone https://github.com/oakplank/gpt-image-bridge.git
+git clone https://github.com/matthias-stottmeier/gpt-image-bridge.git
 chmod +x gpt-image-bridge/skills/gpt-image-bridge/bin/gpt-image-2
 ln -s "$PWD/gpt-image-bridge/skills/gpt-image-bridge/bin/gpt-image-2" /usr/local/bin/gpt-image-2
 ```
@@ -74,14 +76,14 @@ Read the PNG back afterward to check the result.
 Drop the block below into your Claude Code session (or any shell-capable AI agent) and it will install the skill for you, verify prereqs, and offer a smoke test.
 
 ```
-Please install the gpt-image-bridge skill from https://github.com/oakplank/gpt-image-bridge so I can generate images with GPT Image 2.5 through Codex and my ChatGPT subscription.
+Please install the gpt-image-bridge skill from https://github.com/matthias-stottmeier/gpt-image-bridge so I can generate images with GPT Image 2.5 through Codex and my ChatGPT subscription.
 
 1. Check that the `codex` CLI is installed and logged in:
      codex login status
    It should say "Logged in using ChatGPT". If codex is missing or not logged in, stop and tell me to run `brew install codex && codex login` first.
 
 2. Clone and install:
-     git clone https://github.com/oakplank/gpt-image-bridge.git /tmp/gpt-image-bridge
+     git clone https://github.com/matthias-stottmeier/gpt-image-bridge.git /tmp/gpt-image-bridge
      cd /tmp/gpt-image-bridge && ./install.sh
 
 3. Verify ~/.claude/skills/gpt-image-bridge/bin/gpt-image-2 exists and is executable.
